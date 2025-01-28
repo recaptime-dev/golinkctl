@@ -43,12 +43,12 @@ const command = await new Command()
   .env(
     "URL=<url:string>",
     "base URL of the golink server, used if you manage another tailnet's golink server using shared machines or building your own over the internet",
-    { global: true, required: false, prefix: "GOLINK_", value: "http://go" }
+    { global: true, required: false, prefix: "GOLINK_", value: () => "http://go" }
   )
   .env(
     "API_KEY=<apiKey:string>",
     "Golink API key, used by custom implementations of golink server (see https://github.com/andreijiroh-dev/golinks for context)",
-    { global: true, required: false, prefix: "GOLINK_", value: "" }
+    { global: true, required: false, prefix: "GOLINK_", value: () => "" }
     )
   .description("manage your golinks for https://github.com/tailscale-dev/golink compat API servers")
   .globalOption("-u, --url [url:string]", "the base URL of your golink server", {
@@ -64,7 +64,7 @@ command.command("set", "create a new golink (or update a existing one)")
   .alias("new").alias("update")
   .arguments("<target:string [golink:string]")
   // @ts-ignore: I know the risks of being not typed here
-  .action(async(options, ...args) => {
+  .action(async(options, ...args: Array<string>) => {
     const long = args[0]
     const short = args[1] || generateSlug(8)
 
