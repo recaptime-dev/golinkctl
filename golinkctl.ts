@@ -1,5 +1,6 @@
 #!/usr/bin/env -S deno run -A
 import { Command } from "@cliffy/command";
+import { exit } from "jsr:@cliffy/internal@1.0.0-rc.7/runtime/exit";
 
 // types go here
 const headers: Record<string, string> = {
@@ -54,11 +55,15 @@ const command = await new Command()
     default: "http://go"
   })
   .globalOption("-k, --api-key [apiKey:string]", "API key for some custom golink server implementation")
-  .action((options, ...args) => console.log("Run this again with `--help` for hints."))
+  .action(() => {
+    console.log("I don't usually run without subcommands! See help for hints")
+    exit(1)
+  })
 
 command.command("set", "create a new golink (or update a existing one)")
   .alias("new").alias("update")
   .arguments("<target:string [golink:string]")
+  // @ts-ignore: I know the risks of being not typed here
   .action(async(options, ...args) => {
     const long = args[0]
     const short = args[1] || generateSlug(8)
@@ -91,16 +96,16 @@ Last edited: ${json.LastEdit}`
         console.log(log)
       }
     } catch (error) {
-      throw Error(error)
+      console.error(error)
+      exit(1)
     }
   })
 
 // info
 command.command("info", "show details about a golink")
   .arguments("<golink:string>")
+  // @ts-ignore: I know the risks of being not typed here
   .action(async (options, args) => {
-    console.log(options, args)
-
     if (options.apiKey) {
       headers.Authorization = `bearer ${options.apiKey}`
     }
@@ -128,13 +133,15 @@ Clicks/opens: ${json.Clicks || 0}`
 
       console.log(log)
     } catch (error) {
-      throw new Error(error);
+      console.error(error)
+      exit(1)
     }
   })
 
 // export
 command.command("export", "export your golinks in JSON Lines format")
   .option("-f, --file <file:file>", "path to output file for exports instead of via stdout")
+  // @ts-ignore: I know the risks of being not typed here
   .action(async (options) => {
     if (options.apiKey) {
       headers.Authorization = `bearer ${options.apiKey}`
@@ -154,7 +161,8 @@ command.command("export", "export your golinks in JSON Lines format")
         console.log("Successfully written to "+options.file)
       }
     } catch (error) {
-      throw new Error(error)
+      console.error(error)
+      exit(1)
     }
   })
 
