@@ -8,5 +8,10 @@
   },
   "tasks": {
     "cli": "deno run -A ./golinkctl.ts"
+  },
+  "fmt": {
+    "indentWidth": 2,
+    "singleQuote": false,
+    "useTabs": false
   }
 }
