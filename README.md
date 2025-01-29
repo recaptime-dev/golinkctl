@@ -6,6 +6,9 @@ instead of [`npm:commander`](https://npmjs.com/package/commander).
 
 ## Install
 
+> **Note**: Currently works only on Deno for now, but feel free to contribute patches
+> for npm and bun support
+
 Requires Tailscale to be installed and authenicated with MagicDNS enabled
 if you want to use the default base URL.
 
