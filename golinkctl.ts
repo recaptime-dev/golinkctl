@@ -17,6 +17,16 @@ type GoLinkData = {
   Clicks?: number
 }
 
+type GlobalCliOptions = {
+  // globals
+  apiKey?: string | undefined,
+  url: string | "http://go",
+}
+
+type CliExportCommandOpts = GlobalCliOptions & {
+  file?: string
+}
+
 // utility function go here
 function generateSlug(length: number) {
   let result = "";
@@ -63,10 +73,9 @@ const command = await new Command()
 command.command("set", "create a new golink (or update a existing one)")
   .alias("new").alias("update")
   .arguments("<target:string [golink:string]")
-  // @ts-ignore: I know the risks of being not typed here
-  .action(async(options, ...args: Array<string>) => {
-    const long = args[0]
-    const short = args[1] || generateSlug(8)
+  .action(async(options: GlobalCliOptions, ...args) => {
+    const long = args[0] as string
+    const short = args[1] as string || generateSlug(8)
 
     if (options.apiKey) {
       headers.Authorization = `bearer ${options.apiKey}`
@@ -88,7 +97,7 @@ command.command("set", "create a new golink (or update a existing one)")
         const json: GoLinkData = await data.json()
 
         const log =`\
-Short: ${json.Short}
+Short: ${json.Short} (${await getBaseGolink(options.url)}${json.Short})
 Long: ${json.Long}
 Created on: ${json.Created}
 Owner: ${json.Owner}
@@ -103,9 +112,10 @@ Last edited: ${json.LastEdit}`
 
 // info
 command.command("info", "show details about a golink")
+  .alias("show")
   .arguments("<golink:string>")
   // @ts-ignore: I know the risks of being not typed here
-  .action(async (options, args) => {
+  .action(async (options: GlobalCliOptions, args) => {
     if (options.apiKey) {
       headers.Authorization = `bearer ${options.apiKey}`
     }
@@ -124,7 +134,7 @@ command.command("info", "show details about a golink")
 
       // print the hell out
       const log = `\
-Short: ${json.Short}
+Short: ${json.Short} (${await getBaseGolink(options.url)}${json.Short})
 Long: ${json.Long}
 Created on: ${json.Created}
 Owner: ${json.Owner}
@@ -141,8 +151,7 @@ Clicks/opens: ${json.Clicks || 0}`
 // export
 command.command("export", "export your golinks in JSON Lines format")
   .option("-f, --file <file:file>", "path to output file for exports instead of via stdout")
-  // @ts-ignore: I know the risks of being not typed here
-  .action(async (options) => {
+  .action(async (options: CliExportCommandOpts) => {
     if (options.apiKey) {
       headers.Authorization = `bearer ${options.apiKey}`
     }
